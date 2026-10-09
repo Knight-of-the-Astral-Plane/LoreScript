@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="LoreScript is a local-first character sheet and homebrew toolkit for 5e tabletop play. Built for SRD 5.1 and SRD 5.2.1." name="description"/>
+<meta content="#f5f5f1" name="theme-color"/>
+<title>LoreScript</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --bg: #f5f5f1;
+      --paper: #ffffff;
+      --ink: #0d0d0d;
+      --muted: #6e6e68;
+      --line: #d7d7d0;
+      --soft: #e9e9e3;
+
+      --green: #82ff00;
+      --red: #be0606;
+      --orange: #ff7a00;
+      --purple: #b000ff;
+      --gold: #d8b365;
+
+      --max: 1320px;
+      --radius: 24px;
+      --shadow: 0 26px 70px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Inter", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      line-height: 1.45;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .wrap {
+      width: min(calc(100% - 48px), var(--max));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(245,245,241,.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(13,13,13,.08);
+    }
+
+    .nav {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -.055em;
+    }
+
+    .navlinks {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+
+    .navlinks a {
+      opacity: .7;
+      transition: opacity .18s ease;
+    }
+
+    .navlinks a:hover { opacity: 1; }
+
+    .navlinks .pill {
+      opacity: 1;
+      padding: 10px 15px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+    }
+
+    .hero {
+      padding: 100px 0 80px;
+      min-height: calc(100vh - 74px);
+      display: grid;
+      align-items: center;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 72px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(4.8rem, 11vw, 9.6rem);
+      line-height: .83;
+      letter-spacing: -.085em;
+      font-weight: 900;
+    }
+
+    .hero-tagline {
+      margin: 32px 0 0;
+      max-width: 760px;
+      font-size: clamp(1.2rem, 2.1vw, 1.62rem);
+      line-height: 1.38;
+      font-weight: 500;
+    }
+
+    .hero-tagline strong {
+      font-weight: 800;
+    }
+
+    .srdline {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .feature-strip {
+      margin-top: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      max-width: 780px;
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .feature-strip span:not(:last-child)::after {
+      content: "·";
+      margin-left: 18px;
+      color: var(--muted);
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .btn {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      font-size: .9rem;
+      font-weight: 800;
+      transition: transform .18s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn.primary {
+      background: var(--ink);
+      color: white;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 660px;
+    }
+
+    .sheet {
+      position: absolute;
+      width: min(44vw, 280px);
+      aspect-ratio: 390/844;
+      border: 1.5px solid var(--ink);
+      background: white;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sheet.s1 { left: 2%; top: 10%; transform: rotate(-4deg); }
+    .sheet.s2 { right: 0; top: 8%; transform: rotate(4deg); }
+    .sheet.s3 { left: 31%; bottom: 0; transform: rotate(.6deg); }
+
+    .chrome {
+      height: 38px;
+      background: #0c0c0c;
+    }
+
+    .tab {
+      height: 42px;
+    }
+
+    .s1 .tab { background: var(--red); }
+    .s2 .tab { background: #cab3ff; }
+    .s3 .tab { background: var(--green); }
+
+    .sheet-inner { padding: 14px; }
+
+    .screen-title {
+      margin-bottom: 18px;
+      font-size: 1.45rem;
+      font-weight: 900;
+      letter-spacing: -.05em;
+    }
+
+    .uirow {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+      font-size: .72rem;
+    }
+
+    .uirow strong { font-size: .79rem; }
+
+    .points {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -.05em;
+      margin: 8px 0 4px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 5px;
+      margin: 12px 0 20px;
+    }
+
+    .dots i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    .section {
+      padding: 120px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: .72fr 1.28fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .kicker {
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2.9rem, 6vw, 5.8rem);
+      line-height: .95;
+      letter-spacing: -.06em;
+      font-weight: 900;
+    }
+
+    .lead {
+      margin: 30px 0 0;
+      max-width: 820px;
+      font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+      line-height: 1.5;
+    }
+
+    .grid-5 {
+      margin-top: 64px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .card {
+      min-height: 240px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card small {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .card h3 {
+      margin: 0 0 12px;
+      font-size: 1.25rem;
+      letter-spacing: -.035em;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .96rem;
+    }
+
+    .manifesto {
+      background: var(--ink);
+      color: white;
+      padding: 118px 0;
+    }
+
+    .manifesto p {
+      margin: 0;
+      max-width: 1200px;
+      font-size: clamp(2.7rem, 7vw, 7.2rem);
+      line-height: .96;
+      letter-spacing: -.065em;
+      font-weight: 900;
+    }
+
+    .manifesto .green { color: var(--green); }
+
+    .homebrew-list {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .homebrew-list div {
+      padding: 18px 0;
+      border-top: 1px solid var(--line);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .split {
+      margin-top: 64px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .bigcard {
+      min-height: 420px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: white;
+      padding: 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .bigcard.dark {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
+    }
+
+    .bigcard .label {
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      opacity: .55;
+    }
+
+    .bigcard h3 {
+      margin: 0;
+      font-size: clamp(2.1rem, 4vw, 4.1rem);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+
+    .bigcard p {
+      margin: 22px 0 0;
+      max-width: 560px;
+      font-size: 1.05rem;
+      opacity: .72;
+    }
+
+    .blueprint-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 70px;
+      align-items: center;
+    }
+
+    .code {
+      padding: 26px;
+      border-radius: var(--radius);
+      background: #0e0e0e;
+      color: #ddd;
+      box-shadow: var(--shadow);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      line-height: 1.7;
+      overflow: hidden;
+    }
+
+    .code .g { color: var(--green); }
+    .code .o { color: #ff9d3d; }
+    .code .p { color: #d797ff; }
+
+    .offline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 70px;
+      align-items: start;
+    }
+
+    .checklist {
+      display: grid;
+    }
+
+    .checkrow {
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 1.05rem;
+    }
+
+    .checkrow strong {
+      font-size: 1.45rem;
+      letter-spacing: -.04em;
+    }
+
+    .ownership {
+      background: white;
+    }
+
+    .ownership h2 {
+      max-width: 1040px;
+    }
+
+    .ownership-lines {
+      margin-top: 54px;
+      display: grid;
+      gap: 0;
+      max-width: 840px;
+    }
+
+    .ownership-lines div {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 1.15rem;
+    }
+
+    .ownership-lines strong {
+      font-weight: 900;
+    }
+
+    .ready {
+      padding: 140px 0 150px;
+      text-align: center;
+    }
+
+    .ready h2 {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .ready p {
+      max-width: 720px;
+      margin: 30px auto 0;
+      color: var(--muted);
+      font-size: 1.15rem;
+    }
+
+    .ready .buttons {
+      justify-content: center;
+    }
+
+    footer {
+      padding: 42px 0 58px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .footer-grid p {
+      margin: 0;
+      max-width: 650px;
+    }
+
+    .footer-grid p:last-child {
+      text-align: right;
+      justify-self: end;
+    }
+
+    @media (max-width: 1040px) {
+      .grid-5 { grid-template-columns: repeat(2, 1fr); }
+      .homebrew-list { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      .navlinks a:not(.pill) { display: none; }
+
+      .hero,
+      .section-grid,
+      .blueprint-grid,
+      .offline {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 60px;
+        gap: 30px;
+      }
+
+      .hero-visual { min-height: 560px; }
+
+      .split { grid-template-columns: 1fr; }
+
+      .section-grid { gap: 26px; }
+
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-grid p:last-child {
+        justify-self: start;
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .wrap {
+        width: min(calc(100% - 24px), var(--max));
+      }
+
+      .hero { min-height: auto; }
+
+      .hero-visual { min-height: 440px; }
+
+      .sheet {
+        width: 47%;
+        border-radius: 20px;
+      }
+
+      .sheet.s1 { left: 0; }
+      .sheet.s2 { right: 0; }
+      .sheet.s3 { left: 26.5%; }
+
+      .grid-5,
+      .homebrew-list {
+        grid-template-columns: 1fr;
+      }
+
+      .section,
+      .manifesto {
+        padding: 82px 0;
+      }
+
+      .bigcard { min-height: 340px; }
+    }
+  
+
+/* LoreScript Homepage V3: colors extracted verbatim from the 0.135 app class palette. */
+:root {
+  --ls-artificer: #C2C2C2;
+  --ls-barbarian: #BE0606;
+  --ls-bard: #00FFD5;
+  --ls-cleric: #D8B365;
+  --ls-druid: #251846;
+  --ls-fighter: #5E5E5E;
+  --ls-monk: #00EEFF;
+  --ls-paladin: #F2D21B;
+  --ls-ranger: #5DC63B;
+  --ls-rogue: #30343B;
+  --ls-sorcerer: #82FF00;
+  --ls-warlock: #FF7A00;
+  --ls-wizard: #B000FF;
+  --ls-spell-sheet: #6B35C9;  /* app --spell-violet */
+  --ls-white: #FFFFFF;
+  --ls-black: #000000;
+  --ls-neutral: #F5F5F1;
+  --ls-charcoal: #0D0D0D;
+  --ls-outline: #D7D7D0;
+  --ls-secondary: #6E6E68;
+  --bg: var(--ls-white);
+  --paper: var(--ls-white);
+  --ink: var(--ls-charcoal);
+  --muted: var(--ls-secondary);
+  --line: var(--ls-outline);
+  --green: var(--ls-sorcerer);
+  --red: var(--ls-barbarian);
+  --orange: var(--ls-warlock);
+  --purple: var(--ls-wizard);
+  --gold: var(--ls-cleric);
+}
+body {background: var(--ls-white)}
+.topbar { background: #FFFFFFED; }
+.hero { position:relative; }
+.feature-strip { color:var(--ls-black); }
+.btn:focus-visible, .navlinks a:focus-visible { outline:3px solid var(--ls-sorcerer); outline-offset:3px; }
+
+/* Hero previews: deliberately empty branded screenshot slots, never fake UI. */
+.hero-visual { min-height:620px; }
+.sheet { border-radius:23px; background:var(--ls-white); }
+.sheet.s1 { z-index:1; }
+.sheet.s2 { z-index:2; }
+.sheet.s3 { z-index:3; }
+.preview-slot { height:100%; display:flex; flex-direction:column; overflow:hidden; }
+.preview-bar { min-height:66px; padding:13px 16px; display:flex; align-items:center; justify-content:space-between; gap:15px; }
+.preview-bar img { width:27px; height:47px; object-fit:contain; }
+.preview-bar strong { font-size:11px; font-weight:900; letter-spacing:.12em; }
+.preview-blank { flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:25px 19px 25px; }
+.preview-blank .preview-note { max-width:210px; color:var(--ls-secondary); font-size:11px; font-weight:600; letter-spacing:.03em; }
+.preview-blank .preview-placeholder { display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center; }
+.preview-blank .preview-placeholder img {display:block;width:64px;height:125px;object-fit:contain;}
+.preview-blank .preview-placeholder span{font-size:11px;font-weight:900;letter-spacing:.14em;}
+.preview-footer { border-top:1px solid var(--ls-outline); padding-top:12px; font-size:9px; font-weight:800; letter-spacing:.12em; }
+.preview-weapons .preview-bar { background:var(--ls-barbarian); color:var(--ls-white); }
+.preview-weapons .preview-blank { background:var(--ls-white); }
+.preview-spells .preview-bar { background:var(--ls-spell-sheet); color:var(--ls-white); }
+.preview-spells .preview-blank { background:var(--ls-neutral); }
+.preview-sorcery .preview-bar { background:var(--ls-sorcerer); color:var(--ls-black); }
+.preview-sorcery .preview-blank { background:var(--ls-white); }
+.preview-sorcery .preview-placeholder { color:var(--ls-black); }
+
+/* Return to V1 typography and composition. A few large class-color surfaces only. */
+#table { background: var(--ls-neutral); }
+#table .card { background: var(--ls-white); }
+#homebrew { background:var(--ls-sorcerer); color:var(--ls-black); border-top:0; }
+#homebrew .kicker {color:var(--ls-black);}
+#homebrew .homebrew-list div {border-top-color:#00000066;}
+#homebrew .homebrew-list {color:var(--ls-black)}
+#blueprint { background:var(--ls-cleric); color:var(--ls-black); border-top:0; }
+#blueprint .kicker {color:var(--ls-black);}
+#offline {background:var(--ls-neutral);}
+.ownership {background:var(--ls-warlock); color:var(--ls-black); border:0;}
+.ownership .kicker{color:var(--ls-black);}
+.ownership-lines div {border-color:#00000066;}
+.manifesto{background:var(--ls-black);}
+.manifesto .green{color:var(--ls-sorcerer);}
+.section-native-icon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; margin:0 12px 0 0; }
+.section-native-icon img {display:block; width:24px; height:44px; object-fit:contain;}
+.native-kicker {display:flex; align-items:center; gap:0;}
+.native-kicker img {height:32px; width:18px; object-fit:contain; margin-right:12px;}
+.native-footer-icons {display:flex; align-items:center; gap:14px; margin-top:22px;}
+.native-footer-icons img {width:18px;height:34px;object-fit:contain;}
+.capsule-palette {display:flex; gap:0; height:9px; margin:0 0 25px; max-width:260px; overflow:hidden; border-radius:999px;}
+.capsule-palette span { flex:1; }
+.capsule-palette span:nth-child(1){background:var(--ls-barbarian);}
+.capsule-palette span:nth-child(2){background:var(--ls-cleric);}
+.capsule-palette span:nth-child(3){background:var(--ls-sorcerer);}
+.capsule-palette span:nth-child(4){background:var(--ls-warlock);}
+.capsule-palette span:nth-child(5){background:var(--ls-wizard);}
+.code { background:var(--ls-charcoal); color:var(--ls-white); }
+.code .g {color:var(--ls-sorcerer);}
+.code .o {color:var(--ls-cleric);}
+.code .p {color:#D797FF;}
+.release-note {border-left:4px solid var(--ls-sorcerer); padding-left:18px; margin:20px auto 0; max-width:660px; font-size:14px; color:var(--ls-secondary);}
+@media (max-width:620px) { .hero-visual{min-height:460px;} .preview-bar{min-height:53px;padding:7px 9px;} .preview-bar img{width:17px;height:32px;} .preview-bar strong{font-size:8px;} .preview-blank{padding:12px 10px 16px;} .preview-blank .preview-placeholder img{width:44px;height:82px;} .preview-blank .preview-placeholder span{font-size:8px;} .preview-blank .preview-note{font-size:9px;} }
+</style>
+<!-- LoreScript V3: class-color tokens and icon PNG assets copied from LoreScript Blueprint 0.135. All theme colors are explicit hex codes. No font files bundled. --></head>
+<body>
+<header class="topbar">
+<div class="wrap nav">
+<a class="brand" href="#top">LoreScript</a>
+<nav class="navlinks">
+<a href="#table">Features</a>
+<a href="#homebrew">Homebrew</a>
+<a href="#blueprint">Blueprint</a>
+<a href="#offline">Offline</a>
+
+<a class="pill" href="#ready">Get LoreScript</a></nav>
+</div>
+</header>
+<main id="top">
+<section class="wrap hero">
+<div>
+<h1>Lore<br/>Script</h1>
+<p class="hero-tagline">
+<strong>Your go-to app for Pen &amp; Paper games.</strong><br/>
+        A fast, local-first character sheet and homebrew toolkit built for the table.
+      </p>
+<p class="srdline">Built for SRD 5.1 and SRD 5.2.1.</p>
+<div class="feature-strip">
+<span>Editor</span>
+<span>Import</span>
+<span>Export</span>
+<span>Homebrew</span>
+<span>Offline</span>
+<span>No subscriptions. Ever.</span>
+</div>
+<div class="buttons"><a class="btn primary" href="#table">Explore LoreScript</a><a class="btn" href="#blueprint">Blueprint</a></div>
+</div>
+<div aria-label="LoreScript interface preview" class="hero-visual"><div class="sheet s1"><div class="preview-slot preview-weapons">
+<div class="preview-bar"><strong>WEAPONS</strong><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAA4CAYAAADqxUiJAAAFk0lEQVR42tWYbYxV1RWGn7X3uefCTAWZXuYKRSajxH6kpYGCLSSkjoHaWmtSKz/6EZpqpT9aSRsaScUh1iDjNLRItaNRSsCvSDsihDgfDAzVTnHAGQWLba2aqrTSwYhKBxjuPWuv/pixsaQQz03OTbqT8+9kv3u9a71rv3vB/9sS53RcFGtVQR3ooUMvqBenEVId8IaGhnGAJkmiDz7UriJOAang8OnW3197/cSJ4ROSJImcHB5m8+ZH8ZBkCuyR5HS5LCMjp+y55563w4ePMPTPo2xp78AhSZYRi3eel1/5G3Pmzpaeng6mTZvK4MAALiXdqYBFDBw8+MAWBDh/4kT6+/fLnLlzxCRDqs2AAN+57hsAHHv7GM8O7jMsYGbZFlewgIVRkHw+ZtbsS0VDSF3WUZqfFXw+ivS0JWJqzJz5GTEzyuUEy7KqHejpJJGceDML5OLIvHc89tstlqmcZIzQZwYHJY7zlEuJWDCu/+7S1FSnzLFhGJjYqZERe+mvfzLDCBYkbfNKCSyICOIEJyIzLvkE/f17ARv7MowYoHf3H3DOkY8jmTdvPqkrqxI5ATQ1zReAcqJMb2j8DxuZUg0wdeoU2/Drh82J4/VXX8MquJ5caliDN44coXS6PFZswcAIWRsANQ0DzwyGpJyEZctWaEdnb/DeK5lHHEBEDAEnIl0dXWzf1i0+pRNx6U/qWL++TQBKpTIhBBDLtqoNuO++B1iz5lYzjOcPDtqohA2RjOW0dOkS+vsHEYRPzpzNwMA+K5WS1FpO3auDC/z5Ly+JmfHHg8/KN7/1bSbXFwhkfB8T4EtfbDIR4VOfnmUXTp8mCxZcStpEpy8ucwiCAfk4pqd7F9u3deEkw4hFAA9tbRtEgP37nkbEKGtCYulMRWrPtW7dvdx191oDmDVrLmaYmBBJpvbWWHbjDfT375cQArk4kkJ9QRYvvsrMMrS3IPjI45yzRQuvYu/ePnvn2DtsfbyTtBdy6ohDCKy65aeys2cH9fVFEBAnYlkaegUfeW9P9u2ir2+vNTZeLAcPHjABXJY6dkiSqErv7t/x7vFhVBULo10rrbOO0mV4VMCJJnbtNVcLZtbUdAUimKTM8dmOmXfIyYD5M16LaiKcGjkpHZ29NnziJFOKBa6+YiElVUuw6L+jEp1SrJ95eGjohQ+czvb2dh1N6/uB0VKprJ2dO4MTUYGwadOjumfPU+pBx+fi37+v1+jWrU9odMYeZ43YgR554ygd3Tupq6vj52vX4KMcFxSLcv0N37N/HT/F1756JSOlEn19T3P55Z/nZ613yyUfbaSra4cdOHAAMWT1Ha1WMy5Hw/SLmPaRCwjgzxnq5MmTL47jWO+5Z5MCmhNRj6iAbtz4iHrntXfPk9q8qkWX3XiTrlt3b3DO64+XN4f3/h2bi+htt63VOI61WCw2fmCq29o2qpxBUwRJLor05p+0aBzngndOf/D9FSHyXs8cRwhoc/PtgbNQfY6xA6X/KQNBY0T96IYaIZo7S5/2UE5b1edcX244X1de82FefOUtXh7Kc/u+IV+VkVPj+Ejf/MU8rYmcXlY8r6I5V0VPmENti6Rt24t8tlDDZTMmVG+yN7++Vr9QrNVtXy/qVxomVW+sOLduvP7jzgVa67xe2zgpVI3qntbPcX/7IWYX8swo5K1qEdcgGkder/t4QfP4UDXgKy+coEd/uUCdoEs+VqgoxxXpOOdFgxkYOOcpq/qq5FgDdHfvYWXzHRAqS3FaL6xrWlupra1j4aImRJDVq+9kaOjV0HbX+pHErCazh3mSaAD03ePHw/LlqxTQXbufCj7lZRClxA4tLS3uRz9cSd2kSZYTx4qbbqWr64mxjGe4Jp438VeAbvnNdn3s8R06znmdUPOhm6smKQ/v2ZqKlPFv0DB5tHkkTcgAAAAASUVORK5CYII="/></div>
+<div class="preview-blank"><div class="preview-note">SCREENSHOT PLACEHOLDER</div>
+<div class="preview-placeholder"><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAA4CAYAAADqxUiJAAAFk0lEQVR42tWYbYxV1RWGn7X3uefCTAWZXuYKRSajxH6kpYGCLSSkjoHaWmtSKz/6EZpqpT9aSRsaScUh1iDjNLRItaNRSsCvSDsihDgfDAzVTnHAGQWLba2aqrTSwYhKBxjuPWuv/pixsaQQz03OTbqT8+9kv3u9a71rv3vB/9sS53RcFGtVQR3ooUMvqBenEVId8IaGhnGAJkmiDz7UriJOAang8OnW3197/cSJ4ROSJImcHB5m8+ZH8ZBkCuyR5HS5LCMjp+y55563w4ePMPTPo2xp78AhSZYRi3eel1/5G3Pmzpaeng6mTZvK4MAALiXdqYBFDBw8+MAWBDh/4kT6+/fLnLlzxCRDqs2AAN+57hsAHHv7GM8O7jMsYGbZFlewgIVRkHw+ZtbsS0VDSF3WUZqfFXw+ivS0JWJqzJz5GTEzyuUEy7KqHejpJJGceDML5OLIvHc89tstlqmcZIzQZwYHJY7zlEuJWDCu/+7S1FSnzLFhGJjYqZERe+mvfzLDCBYkbfNKCSyICOIEJyIzLvkE/f17ARv7MowYoHf3H3DOkY8jmTdvPqkrqxI5ATQ1zReAcqJMb2j8DxuZUg0wdeoU2/Drh82J4/VXX8MquJ5caliDN44coXS6PFZswcAIWRsANQ0DzwyGpJyEZctWaEdnb/DeK5lHHEBEDAEnIl0dXWzf1i0+pRNx6U/qWL++TQBKpTIhBBDLtqoNuO++B1iz5lYzjOcPDtqohA2RjOW0dOkS+vsHEYRPzpzNwMA+K5WS1FpO3auDC/z5Ly+JmfHHg8/KN7/1bSbXFwhkfB8T4EtfbDIR4VOfnmUXTp8mCxZcStpEpy8ucwiCAfk4pqd7F9u3deEkw4hFAA9tbRtEgP37nkbEKGtCYulMRWrPtW7dvdx191oDmDVrLmaYmBBJpvbWWHbjDfT375cQArk4kkJ9QRYvvsrMMrS3IPjI45yzRQuvYu/ePnvn2DtsfbyTtBdy6ohDCKy65aeys2cH9fVFEBAnYlkaegUfeW9P9u2ir2+vNTZeLAcPHjABXJY6dkiSqErv7t/x7vFhVBULo10rrbOO0mV4VMCJJnbtNVcLZtbUdAUimKTM8dmOmXfIyYD5M16LaiKcGjkpHZ29NnziJFOKBa6+YiElVUuw6L+jEp1SrJ95eGjohQ+czvb2dh1N6/uB0VKprJ2dO4MTUYGwadOjumfPU+pBx+fi37+v1+jWrU9odMYeZ43YgR554ygd3Tupq6vj52vX4KMcFxSLcv0N37N/HT/F1756JSOlEn19T3P55Z/nZ613yyUfbaSra4cdOHAAMWT1Ha1WMy5Hw/SLmPaRCwjgzxnq5MmTL47jWO+5Z5MCmhNRj6iAbtz4iHrntXfPk9q8qkWX3XiTrlt3b3DO64+XN4f3/h2bi+htt63VOI61WCw2fmCq29o2qpxBUwRJLor05p+0aBzngndOf/D9FSHyXs8cRwhoc/PtgbNQfY6xA6X/KQNBY0T96IYaIZo7S5/2UE5b1edcX244X1de82FefOUtXh7Kc/u+IV+VkVPj+Ejf/MU8rYmcXlY8r6I5V0VPmENti6Rt24t8tlDDZTMmVG+yN7++Vr9QrNVtXy/qVxomVW+sOLduvP7jzgVa67xe2zgpVI3qntbPcX/7IWYX8swo5K1qEdcgGkder/t4QfP4UDXgKy+coEd/uUCdoEs+VqgoxxXpOOdFgxkYOOcpq/qq5FgDdHfvYWXzHRAqS3FaL6xrWlupra1j4aImRJDVq+9kaOjV0HbX+pHErCazh3mSaAD03ePHw/LlqxTQXbufCj7lZRClxA4tLS3uRz9cSd2kSZYTx4qbbqWr64mxjGe4Jp438VeAbvnNdn3s8R06znmdUPOhm6smKQ/v2ZqKlPFv0DB5tHkkTcgAAAAASUVORK5CYII="/><span>WEAPONS</span></div>
+<div class="preview-footer">Your actual WEAPONS screenshot goes here.</div></div></div></div><div class="sheet s2"><div class="preview-slot preview-spells">
+<div class="preview-bar"><strong>SPELLS</strong><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,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"/></div>
+<div class="preview-blank"><div class="preview-note">SCREENSHOT PLACEHOLDER</div>
+<div class="preview-placeholder"><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,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"/><span>SPELLS</span></div>
+<div class="preview-footer">Your actual SPELLS screenshot goes here.</div></div></div></div><div class="sheet s3"><div class="preview-slot preview-sorcery">
+<div class="preview-bar"><strong>SORCERY</strong><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,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"/></div>
+<div class="preview-blank"><div class="preview-note">SCREENSHOT PLACEHOLDER</div>
+<div class="preview-placeholder"><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,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"/><span>SORCERY</span></div>
+<div class="preview-footer">Your actual SORCERY screenshot goes here.</div></div></div></div></div>
+</section>
+<section class="section" id="table">
+<div class="wrap">
+<div class="section-grid">
+<div class="kicker">Your character. Your rules. Your table.</div>
+<div>
+<h2>Less accounting.<br/>More playing.</h2>
+<p class="lead">
+            LoreScript helps you build, play and manage characters without turning your game into an accounting exercise.
+            Create your character, level up and keep playing. LoreScript calculates your stats, weapon damage,
+            spellcasting abilities and other mechanics automatically. It even keeps track of which spells are actually available to your build.
+          </p>
+</div>
+</div>
+<div class="grid-5">
+<article class="card">
+<small>01</small>
+<div>
+<h3>Character Sheets</h3>
+<p>Keep stats, skills, traits, weapons, spells and resources where you need them.</p>
+</div>
+</article>
+<article class="card">
+<small>02</small>
+<div>
+<h3>Automatic Calculations</h3>
+<p>Level up your character and let LoreScript handle the numbers.</p>
+</div>
+</article>
+<article class="card">
+<small>03</small>
+<div>
+<h3>2014 + 2024</h3>
+<p>Create characters using either ruleset.</p>
+</div>
+</article>
+<article class="card">
+<small>04</small>
+<div>
+<h3>Offline First</h3>
+<p>Your characters stay available even when your internet connection doesn't.</p>
+</div>
+</article>
+<article class="card">
+<small>05</small>
+<div>
+<h3>Local Data</h3>
+<p>No account, login or permanent connection to somebody else's server.</p>
+</div>
+</article>
+</div>
+</div>
+</section>
+<section class="manifesto">
+<div class="wrap"><div aria-hidden="true" class="capsule-palette"><span></span><span></span><span></span><span></span><span></span></div>
+<p>
+        No fake parchment.<br/>
+        No ornamental clutter.<br/>
+<span class="green">No tired medieval UI.</span>
+</p>
+</div>
+</section>
+<section class="section" id="homebrew">
+<div class="wrap">
+<div class="section-grid">
+<div class="kicker native-kicker"><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,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"/>Make it yours.</div>
+<div>
+<h2>A powerful Homebrew Editor is built right in.</h2>
+<p class="lead">
+            It's not there yet? <strong>+ Create it.</strong> LoreScript lets you create your own game content directly inside the Compendium.
+            Custom content works alongside the built-in rules and can participate in LoreScript's character automation.
+          </p>
+</div>
+</div>
+<div class="homebrew-list">
+<div>Items</div>
+<div>Species</div>
+<div>Classes</div>
+<div>Subclasses</div>
+<div>Backgrounds</div>
+<div>Feats</div>
+<div>Creatures</div>
+<div>Spells</div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="wrap">
+<div class="section-grid">
+<div class="kicker">Import. Export. Share.</div>
+<div>
+<h2>One file can carry a lot of game.</h2>
+<p class="lead">
+            LoreScript comes with a flexible Blueprint import and export system.
+            Export homebrew items, creatures, classes, subclasses and other game entities and send them to your friends.
+          </p>
+</div>
+</div>
+<div class="split">
+<article class="bigcard">
+<div class="label">You're the DM?</div>
+<div>
+<h3>Perfect.</h3>
+<p>
+              Create your own campaign pack containing the game-relevant content for your campaign and send it to your group.
+              Custom creatures. Items. Spells. Character options. Whatever your campaign needs.
+            </p>
+</div>
+</article>
+<article class="bigcard dark">
+<div class="label">You're a player?</div>
+<div>
+<h3>Perfect.</h3>
+<p>
+              Import characters, subclasses, spells, items and complete Blueprint packs through the same simple system.
+              No manually recreating everything on every device.
+            </p>
+</div>
+</article>
+</div>
+</div>
+</section>
+<section class="section" id="blueprint">
+<div class="wrap blueprint-grid">
+<div>
+<div class="kicker native-kicker"><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,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"/>Blueprint</div>
+<h2>Your content shouldn't be trapped inside an app.</h2>
+<p class="lead">
+          LoreScript can export your custom content as a Blueprint JSON file. Blueprint is designed to make game content portable,
+          editable and reproducible. Keep it as a backup, modify it yourself, share it with friends or use other tools to work with it.
+        </p>
+<p class="lead">
+          And if filling out everything manually sounds like work: <strong>give the Blueprint to an AI and let it help you.</strong>
+</p>
+</div>
+<div class="code">
+<pre><span class="g">LORESCRIPT BLUEPRINT</span>
+
+<span class="o">EXPORT PACK</span>
+  → Custom content
+  → JSON file
+  → Share, edit or import
+
+<span class="p">No account required.</span></pre>
+</div>
+</div>
+</section>
+<section class="section" id="offline">
+<div class="wrap offline">
+<div>
+<div class="kicker">Completely offline.</div>
+<h2>Take LoreScript into the wilderness.</h2>
+<p class="lead">
+          LoreScript doesn't need to know where you are. It doesn't need your contacts. It doesn't need to know when you play.
+          It doesn't need an account. Your characters and custom content live locally on your device.
+        </p>
+</div>
+<div class="checklist">
+<div class="checkrow"><span>Account</span><strong>No.</strong></div>
+<div class="checkrow"><span>Cloud dependency</span><strong>No.</strong></div>
+<div class="checkrow"><span>Permanent connection</span><strong>No.</strong></div>
+<div class="checkrow"><span>Wi-Fi required</span><strong>No.</strong></div>
+</div>
+</div>
+</section>
+<section class="section ownership">
+<div class="wrap">
+<div class="kicker native-kicker"><img alt="" class="ls-native-icon" loading="eager" src="data:image/png;base64,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"/>Buy it once. Own it.</div>
+<h2>Because a character sheet shouldn't become a recurring bill.</h2>
+<div class="ownership-lines">
+<div>No monthly plan.</div>
+<div>No premium character slots.</div>
+<div>No subscription tier required to access the characters you already created.</div>
+<div><strong>Buy LoreScript once and keep LoreScript.</strong></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="wrap">
+<div class="section-grid">
+<div class="kicker">Powered by open rules. Expanded by you.</div>
+<div>
+<h2>SRD at the core.<br/>Your game around it.</h2>
+<p class="lead">
+            LoreScript Basic comes equipped with content based on SRD 5.1 and SRD 5.2.1.
+            Additional content can be created through the LoreScript Editor or imported as Blueprint content.
+            That means LoreScript does not need to ship every imaginable class, creature, spell or campaign setting.
+            <strong>You decide what belongs in your game.</strong>
+</p>
+</div>
+</div>
+</div>
+</section>
+<section class="ready" id="ready">
+<div class="wrap">
+<div class="kicker">Ready to roll?</div>
+<h2>Build a character. Build a class. Build an entire campaign pack.</h2>
+<p>Then close your laptop, lose your internet connection and go play.</p>
+<p class="release-note">Public release and purchase links will appear here once LoreScript is ready.</p><div class="buttons"><a class="btn primary" href="#top">Back to top</a></div>
+</div>
+</section>
+</main>
+<footer>
+<div class="wrap footer-grid">
+<p>
+<strong>LoreScript</strong><br/>
+      Local-first character management and homebrew tools for 5e tabletop role-playing games.
+    </p>
+<p>
+      LoreScript is an independent project and is not affiliated with or endorsed by Wizards of the Coast.
+      Rules content included with LoreScript is limited to content made available under the applicable SRD licenses.
+      Product and company names remain the property of their respective owners.
+    </p>
+</div>
+</footer>
+</body>
+</html>
